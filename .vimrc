@@ -3,27 +3,45 @@
 " This must be first, because it changes other options as a side effect.
 set nocompatible
 
+"""  Vundle setting {{{
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 filetype off
 set rtp+=~/.vim/bundle/vundle
 call vundle#rc()
 
 Bundle 'gmarik/vundle'
+Bundle 'newkedison/colourscheme_bandit'
+Bundle 'ciaranm/securemodelines'
+Bundle 'unite.vim'
+Bundle 'EnhancedCommentify-2.3'
 
 filetype plugin indent on
+" }}}
+"""  Basic vim setting {{{
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 " allow backspacing over everything in insert mode
 set backspace=indent,eol,start
-
-if has("vms")
-  set nobackup		" do not keep a backup file, use versions instead
-else
-  set backup		" keep a backup file
-endif
 set history=500		" keep 50 lines of command line history
 set ruler		" show the cursor position all the time
 set showcmd		" display incomplete commands
 set incsearch		" do incremental searching
 set noerrorbells
+set ignorecase
+set nu
+set scrolloff=5
+set linespace=0
+
+set tabstop=2     "实际Tab键的宽度
+set expandtab     "用空格代替Tab键,这样当按了Tab键后,会被替换成两个空格,删除的时候也是按空格来删除
+set autoindent    "自动缩进,在VIM能识别的语法下,会自动输入Tab,缩进的宽度由下一行的设置确定
+set shiftwidth=2  "设置自动缩进的宽度
+
+set nobackup
+" Enable persistent undo when vim version large than 7.3
+if version >=703
+  set undofile
+endif
 
 set encoding=utf-8
 "set langmenu=zh_CN.UTF-8
@@ -36,14 +54,53 @@ set fileencodings=utf-8,gbk,ucs-bom,cp936
 set visualbell t_vb=
 set noerrorbells
 
-" For Win32 GUI: remove 't' flag from 'guioptions': no tearoff menu entries
-" let &guioptions = substitute(&guioptions, "t", "", "g")
-
-" Don't use Ex mode, use Q for formatting
-map Q gq
+"Set the text width to be 80, but do NOT auto swap lines
+"if need to support multi-byte character, add 'Mm' to 'fo' setting
+"if need auto swap lines, add 'fo=tcroqMm'
+set tw=80 fo=Mmq
+"Highlight the 81 colomn, indicate a warning
+set colorcolumn=81
 
 " In many terminal emulators the mouse works just fine, thus enable it.
 set mouse=a
+
+" Uncomment below if you need to read the Chinese version help content
+"if version >=603
+"  set helplang=cn
+"endif
+"
+if v:version >= 700
+  " 自动补全(ctrl-p)时的一些选项：
+  " 多于一项时显示菜单，最长选择，
+  " 显示当前选择的额外信息
+  set completeopt=menu,longest,preview
+endif
+
+
+set confirm                 " 用确认对话框（对于 gvim）或命令行选项（对于
+                            " vim）来代替有未保存内容时的警告信息
+set display=lastline        " 长行不能完全显示时显示当前屏幕能显示的部分。
+                            " 默认值为空，长行不能完全显示时显示 @。
+set showcmd                 " 在状态栏显示目前所执行的指令，未完成的指令片段亦
+                            " 会显示出来
+set cmdheight=1             " 设定命令行的行数为 1
+set laststatus=2            " 显示状态栏 (默认值为 1, 无法显示状态栏)
+
+"set the content of status line
+"show more important information when it is short
+set statusline=
+set statusline +=%n\        "buffer number
+set statusline +=%{&ff}     "file format
+set statusline +=%Y         "file type
+set statusline +=%<\ %F     "full path
+set statusline +=%#StatusLineFlag#%m         "modified flag
+set statusline +=%r%*         "modified flag
+set statusline +=%=%P,%v,%#StatusLineLineNo#%l%* "percent,virtual columen,line
+set statusline +=/%L        "total lines
+set statusline +=\ %B       "character under cursor
+hi StatusLineFlag ctermbg=126 cterm=reverse,bold
+hi StatusLineLineNo ctermbg=4 cterm=reverse,bold
+let mapleader=","
 
 " Switch syntax highlighting on, when the terminal has colors
 " Also switch on highlighting the last used search pattern.
@@ -51,37 +108,26 @@ if &t_Co > 2 || has("gui_running")
   set t_Co=256
   syntax on
   set hlsearch
+  colorscheme bandit
+endif
+" }}}
+"""  Global autocmd {{{
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+if !has("autocmd")
+  echo "You must compile vim with autocmd support"
+  finish
 endif
 
-if has("autocmd")
+augroup CursorGroup
+  au!
   au InsertEnter * silent execute "!gconftool-2 --type string --set /apps/gnome-terminal/profiles/Default/cursor_shape ibeam"
   au InsertLeave * silent execute "!gconftool-2 --type string --set /apps/gnome-terminal/profiles/Default/cursor_shape block"
   au VIMEnter * silent execute "!gconftool-2 --type string --set /apps/gnome-terminal/profiles/Default/cursor_shape block"
   au VIMLeave * silent execute "!gconftool-2 --type string --set /apps/gnome-terminal/profiles/Default/cursor_shape ibeam"
-endif
+augroup END
 
-" Only do this part when compiled with support for autocommands.
-if has("autocmd")
-
-  "filetype off
-"  call pathogen#infect()
-"  call pathogen#helptags()
-"  set runtimepath-=~/.vim/bundle/YouCompleteMe
-"  set runtimepath-=~/.vim/bundle/unite.vim
-
-  " Enable file type detection.
-  " Use the default filetype settings, so that mail gets 'tw' set to 72,
-  " 'cindent' is on in C files, etc.
-  " Also load indent files, to automatically do language-dependent indenting.
-"  filetype plugin indent on
-
-  " Put these in an autocmd group, so that we can delete them easily.
-  augroup vimrcEx
+augroup BeforeDisplayFileGroup
   au!
-
-  " For all text files set 'textwidth' to 78 characters.
-  autocmd FileType text setlocal textwidth=78
-
   " When editing a file, always jump to the last known cursor position.
   " Don't do it when the position is invalid or when inside an event handler
   " (happens when dropping a file on gvim).
@@ -89,33 +135,285 @@ if has("autocmd")
     \ if line("'\"") > 0 && line("'\"") <= line("$") |
     \   exe "normal! g`\"" |
     \ endif
+  autocmd BufEnter * lcd %:p:h
+augroup END
 
-  augroup END
+augroup DetectFileTypeGroup
+  au!
+  au BufRead,BufNewFile,ColorScheme *.tips setfiletype tips
+  au BufRead,BufNewFile,ColorScheme *.lnt setfiletype c
+augroup END
 
-else
+augroup TimeStampGroup  "This augroup is disabled
+  au!
+  au BufWritePre _vimrc,*.vim,.vimrc   call TimeStamp('"')
+  au BufWritePre *.c,*.h        call TimeStamp('//')
+  au BufWritePre *.cpp,*.hpp    call TimeStamp('//')
+  au BufWritePre *.cxx,*.hxx    call TimeStamp('//')
+  au BufWritePre *.java         call TimeStamp('//')
+  au BufWritePre *.rb           call TimeStamp('#')
+  au BufWritePre *.py           call TimeStamp('#')
+  au BufWritePre Makefile       call TimeStamp('#')
+  au BufWritePre *.txt          call TimeStamp()
+  au BufWritePre *.php
+        \call TimeStamp('<?php //', '?>')
+  au BufWritePre *.html,*htm
+        \call TimeStamp('<!--', '-->')
+augroup END
 
-  set autoindent		" always set autoindenting on
+augroup QuickFixGroup  "This augroup is disabled
+  au QuickfixCmdPost make call QfMakeConv()
+augroup END
 
-endif " has("autocmd")
+augroup GitGroup
+  au FileType gitcommit r /tmp/git_log.tmp
+  au FileType gitcommit g/^#.*\n^#\@!/exec "norm o"
+  au FileType gitcommit v/^#/s/^/#/
+augroup END
 
+" Disable these below groups
+autocmd! TimeStampGroup
+autocmd! QuickFixGroup
+
+" }}}
+"""  Global custome functions  {{{
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Convenient command to see the difference between the current buffer and the
 " file it was loaded from, thus the changes you made.
 command! DiffOrig vert new | set bt=nofile | r # | 0d_ | diffthis
 	 	\ | wincmd p | diffthis
 
-   """"""""""""""""""""""""""""""
-   " Tag list (ctags)
-   """"""""""""""""""""""""""""""
-   "if MySys() == "windows"                "设定windows系统中ctags程序的位置
-   "  let Tlist_Ctags_Cmd = 'ctags'
-   "elseif MySys() == "linux"              "设定linux系统中ctags程序的位置
-   "  let Tlist_Ctags_Cmd = '/usr/bin/ctags'
-   "endif
-   let Tlist_Show_One_File = 1            "不同时显示多个文件的tag，只显示当前文件的
-   let Tlist_Exit_OnlyWindow = 1          "如果taglist窗口是最后一个窗口，则退出vim
-   "let Tlist_Use_Right_Window = 1         "在右侧窗口中显示taglist窗口 
+"将命令行的结果，输出到当前的文件中
+"使用方法:
+":ReadCommand 命令
+"如  :ReadCommand reg
+"command是定义一个用户自定义函数
+"-nagrs=1规定这个函数接受一个参数
+"-complete=command规定这个函数可以接受Ex命令补全(其实我也不太理解是什么意思,应该是支持在命令行按Tab键补全一些命令的名字)
+"ReadCommand是函数名，后面全部是函数体，函数体中，注意<args>在实际命令中，会替换为实际的参数
+"函数体的内容比较简单，主要是利用redir命令，把输出先重定向到一个临时寄存器，然后粘贴到文件，最后结束重定向
+command! -nargs=1 -complete=command ReadCommand redir @"> 
+    \ | exe "<args>" | normal $p | redir END
 
-""WinManager相关设置
+"替换左花括号,如果当前行有内容,不替换,如果当前行只是空字符,则自动加上右括号,并且换行
+"这样做是因为有时候需要用单个大括号,表示折叠,所以不能替换
+function! BigBracket()
+  if getline('.') =~ '^\s*$'
+    return "{}\<left>\<CR>\<ESC>kA"
+  else
+    return "{"
+  endif
+endfunction
+function! ClosePair(char)
+  if getline('.')[col('.') - 1] == a:char
+    return "\<Right>"
+  else
+    return a:char
+  endif
+endfunction
+"这个函数和下面的ReplaceQuote类似, 但是处理了双引号作为注释的情况
+"如果整行没内容,然后输入引号,这种情况就是注释, 那就不进行处理
+function! ReplaceQuoteForVim(c)
+  if getline('.') =~ '^\s*$' && a:c == '"'
+    return a:c
+  endif
+  if getline('.')[col('.') - 1] == a:c
+    return "\<Right>"
+  else
+    return a:c . a:c . "\<Left>"
+  endif
+endfunction
+function! ReplaceQuote(c)
+  if getline('.')[col('.') - 1] == a:c
+    return "\<Right>"
+  else
+    return a:c . a:c . "\<Left>"
+  endif
+endfunction
+
+"重新映射删除键,使得光标在两个双引号或者单引号之间的时候,优先删除右边的一个
+function! NewBackSpace()
+  let col = col('.') - 1
+  if col > 0 && "'\"" =~ getline('.')[col]
+    if getline('.')[col] == getline('.')[col-1]
+      return "\<Del>"
+    endif
+  endif
+  return "\<BackSpace>"
+endfunction
+
+"直接编译执行当前文件,目前仅支持Python(*.py)
+function! RunSource()
+  let ext = expand("%:e") "分解出扩展名
+  if ext == 'py'   "处理Python文件
+    "调用python,注意如果在Windows，要把python.exe的路径加入PATH环境变量
+    exe "!python ".expand("%:p")
+  elseif ext == 'c' || ext == 'cpp'
+    if filereadable('Makefile')
+      make
+    else
+      echo "c和cpp文件必须提供Makefile才能自动编译"
+    endif
+  else   "如果扩展名不支持
+    echo "目前只支持以下文件格式:"
+    echo "(*.py), Python文件"
+    echo "(*.c), c语言文件（需有Makefile）"
+    echo "(*.cpp), c++文件（需有Makefile）"
+  endif
+endfunction
+
+function! GotoHelp(cmd)
+	let c=a:cmd
+	if match(c,'^:h .\+$') != -1
+		return c
+	else
+		return "echo '当前行不是查询帮助的命令'"
+	endif
+endfunction
+function! MaximizeWindow()
+  silent !wmctrl -r :ACTIVE: -b add,maximized_vert,maximized_horz
+endfunction
+
+"自动添加时间戳,来源http://www.yegong.net/timestamp-script-for-vim/
+"根据不同的文件类型,自动以注释的方式写入当前时间,
+"如果已经存在一个旧的时间戳,自动更新,如果不存在,在第一行
+function! TimeStamp(...)
+    let sbegin = ''
+    let send = ''
+    if a:0 >= 1
+        let sbegin = a:1.' '
+    endif
+    if a:0 >= 2
+        let send = ' '.a:2
+    endif
+    let pattern = sbegin . 'Last Change: .\+'
+        \. send
+    let pattern = '^\s*' . pattern . '\s*$'
+    let row = search(pattern, 'n')
+    let now = strftime('%Y-%m-%d %H:%M:%S',
+        \localtime())
+    let now = sbegin . 'Last Change: '
+        \. now . send
+    if row == 0
+        call append(0, now)
+    else
+        call setline(row, now)
+    endif
+endfunction
+
+"处理QuickFix窗口乱码,见:h make
+function! QfMakeConv()
+  let qflist = getqflist()
+  for i in qflist
+    let i.text = iconv(i.text, "utf-8", "euc-cn")
+  endfor
+  call setqflist(qflist)
+endfunction
+" }}}
+"""  Global custome map {{{
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+map <leader>s :source ~/.vimrc<cr>
+map <leader>e :split ~/.vimrc<cr>
+au! bufwritepost .vimrc source ~/.vimrc
+
+nnoremap ; :
+
+map <leader>stl :sp ~/share/vim/vimfiles/after/syntax/cpp/stl.vim<cr>
+
+"ino <M-k> <Up>
+"ino <M-j> <Down>
+"ino <M-h> <Left>
+"ino <M-l> <Right>
+cnoremap <M-h> <Left>
+cnoremap <M-l> <Right>
+inoremap <C-v> <esc>:set paste<cr>mui<C-R>+<esc>mv'uV'v=:set nopaste<cr>
+vmap <c-c> "+y<esc>
+nmap <c-v> <esc><esc>"+p
+nnoremap <space> 3<C-D>
+nnoremap <A-space> 3<C-U>
+
+imap <Nul> <Space>
+inoremap <C-o> <C-x><C-o>
+inoremap <C-i> <C-x><C-i>
+
+"From:http://hi.baidu.com/legolaskiss/blog/item/0f8cc3ea8ac553d0d539c92c.html
+"后来又参考了其他的资料,进行了较大改动,因为Tab键会用于补全,所以不能用来跳过右半部分
+inoremap ( ()<left>
+inoremap [ []<left>
+inoremap { <c-r>=BigBracket()<CR>
+inoremap ' <c-r>=ReplaceQuote("'")<CR>
+inoremap " <c-r>=ReplaceQuote("\"")<CR>
+"对于vim脚本文件, 双引号还可以作为注释, 所以这里映射到一个专用函数
+"注意其中有个<buffer>, 表示这个映射只针对buffer有效
+autocmd FileType vim inoremap <buffer> " <c-r>=ReplaceQuoteForVim("\"")<CR>
+inoremap ) <c-r>=ClosePair(')')<CR>
+inoremap ] <c-r>=ClosePair(']')<CR>
+inoremap } <c-r>=ClosePair('}')<CR>
+
+"inoremap <BackSpace> <c-r>=NewBackSpace()<cr>
+inoremap <S-BackSpace> <Right><BackSpace>
+
+"使得光标在不同窗口中跳转，Tab是向下/向右跳转，Shift+Tab则相反
+nnoremap <S-Tab> <C-w>W
+nnoremap <Tab> <C-w>w
+
+nnoremap <F2> :call setline('.', strftime('%Y-%m-%d %H:%M:%S', localtime()))
+nmap <F4> ^y$:<c-r>=GotoHelp(@0)<cr><cr>
+"设置/取消高亮光标所在行和所在列
+"map <F5> :set cursorline cursorcolumn
+"map <S-F5> :set nocursorline nocursorcolumn
+nmap <F6> :nohls<cr>
+map <F9> :w<bar>call RunSource():cw
+
+"自动折行有个小问题，就是按j和k进行光标移动的时候，一次会跳过整行，导致要把光标移动到一行的中间，要按很多次l才行
+"还好有gj和gk这两个也是移动的命令，可以满足要求，而且对于没有折行的，也是正常。所以这里直接把j和k映射上去
+nnoremap j gj
+nnoremap k gk
+
+"几个和make相关的映射
+"make后面加上感叹号，使得不自动跳转到第一个错误，
+map <leader>m :w<bar>make!<cr>:copen<cr>G
+"在调用make后继续调用make run，要求Makefile里面要有run这一节
+map <leader>ma :w<bar>make<cr>:make run<cr>
+
+"在用ctags生成命令的时候,生成一些特定的C++信息
+"--c++-kinds=+p  : 为C++文件增加函数原型的标签
+"--fields=+iaS   : 在标签文件中加入继承信息(i)、类成员的访问控制信息(a)、以及函数的指纹(S)
+"--extra=+q      : 为标签增加类修饰符。注意，如果没有此选项，将不能对类成员补全 
+map <leader>tag :!ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR>
+"和OmniComplete补全相关的一些映射,pumvisible()函数返回现在补全列表是否可见
+inoremap <expr> <CR>       pumvisible()?"\<C-Y>":"\<CR>"
+inoremap <expr> <C-J>      pumvisible()?"\<PageDown>\<C-N>\<C-P>":"\<C-X><C-O>"
+inoremap <expr> <C-K>      pumvisible()?"\<PageUp>\<C-P>\<C-N>":"\<C-K>"
+inoremap <expr> <C-U>      pumvisible()?"\<C-E>":"\<C-U>" 
+"如果补全列表可见,把j和k映射为上下移动,否则还是保持原样
+"原来是定义成j和k, 但是k的使用频率有点高, 容易误操作
+inoremap <expr> j          pumvisible()?"\<C-N>":"j"
+inoremap <expr> J          pumvisible()?"\<C-P>":"J"
+
+"Ctrl-w is too hard to press
+noremap wl <C-w>l
+noremap wj <C-w>j
+noremap wk <C-w>k
+noremap wh <C-w>h
+" }}}
+"""  Settings of plugins {{{
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""
+" Tag list (ctags)
+""""""""""""""""""""""""""""""
+"if MySys() == "windows"                "设定windows系统中ctags程序的位置
+"  let Tlist_Ctags_Cmd = 'ctags'
+"elseif MySys() == "linux"              "设定linux系统中ctags程序的位置
+"  let Tlist_Ctags_Cmd = '/usr/bin/ctags'
+"endif
+let Tlist_Show_One_File = 1            "不同时显示多个文件的tag，只显示当前文件的
+let Tlist_Exit_OnlyWindow = 1          "如果taglist窗口是最后一个窗口，则退出vim
+"let Tlist_Use_Right_Window = 1         "在右侧窗口中显示taglist窗口 
+
+""""""""""""""""""""""""""""""
+" WinManager
+""""""""""""""""""""""""""""""
 "let g:winManagerWindowLayout='FileExplorer|TagList'
 "nmap wm :WMToggle<cr>
 ""在读取c/c++文件时，启动WinManager
@@ -159,9 +457,14 @@ command! DiffOrig vert new | set bt=nofile | r # | 0d_ | diffthis
 "autocmd BufEnter __Tag_List__,\[File\ List\] nested 
 "      \ call Exit_When_No_Other_Buffer()
 
-"cscope相关设置
+""""""""""""""""""""""""""""""
+" cscope
+""""""""""""""""""""""""""""""
 set cscopequickfix=s-,c-,d-,i-,t-,e-
 
+""""""""""""""""""""""""""""""
+" miniBufExplorer
+""""""""""""""""""""""""""""""
 "允许用<C-箭头键>切换buffer
 "let g:miniBufExplMapWindowNavArrows = 1
 "允许用<C-Tab>和<C-S-Tab>向前或向后选中Buf并直接打开
@@ -175,340 +478,58 @@ let g:miniBufExplMapWindowNavVim = 1
 let g:miniBufExplorerMoreThanOne = 999
 "let g:miniBufExplForceSyntaxEnable = 1
 
-
-
+""""""""""""""""""""""""""""""
+" NeoComplCache
+""""""""""""""""""""""""""""""
 let g:NeoComplCache_EnableAtStartup = 1 
+
+""""""""""""""""""""""""""""""
+" SuperTab
+""""""""""""""""""""""""""""""
 let g:SuperTabDefaultCompletionType="context"
 
-"if version >=603
-"  set helplang=cn
-"endif
-let mapleader=","
+""""""""""""""""""""""""""""""
+" a.vim
+""""""""""""""""""""""""""""""
+"通过a.vim插件，实现在.h和.cpp之间切换  
+map <leader>a :w<bar>A<cr>
 
-map <leader>s :source ~/.vimrc<cr>
-map <leader>e :split ~/.vimrc<cr>
-au! bufwritepost .vimrc source ~/.vimrc
+""""""""""""""""""""""""""""""
+" c.vim
+""""""""""""""""""""""""""""""
+"设置日期和时间的格式,如果不设置,将显示为中文,这样不太合适
+let g:C_FormatDate = '%Y-%m-%d'
+let g:C_FormatTime = '%H:%M:%S'
+let g:C_MapLeader=mapleader
+let g:C_CFlags= '-Wall -g -O0 -c -std=c++0x'
+let g:C_Libs= '-lm -pthread'
 
-nnoremap ; :
+""""""""""""""""""""""""""""""
+" vimgdb
+""""""""""""""""""""""""""""""
+map <leader>dr :run macros/gdb_mappings.vim<bar>call gdb("gdb")<cr>
+map <leader>dv :bel vsplit gdb-variables<bar>silent! !echo a<cr>i<ESC>
 
-nnoremap <leader>q :q
+let g:vimgdb_debug_file = ""
+"run macros/gdb_mappings.vim
 
-set linespace=2
-"au bufwritepost my_desert.vim colorscheme my_desert
-
-nnoremap <space> 3<C-D>
-nnoremap <A-space> 3<C-U>
-
-imap <Nul> <Space>
-inoremap <C-o> <C-x><C-o>
-inoremap <C-i> <C-x><C-i>
-
-set tabstop=2     "实际Tab键的宽度
-set expandtab     "用空格代替Tab键,这样当按了Tab键后,会被替换成两个空格,删除的时候也是按空格来删除
-set autoindent    "自动缩进,在VIM能识别的语法下,会自动输入Tab,缩进的宽度由下一行的设置确定
-set shiftwidth=2  "设置自动缩进的宽度
-
-"From:http://hi.baidu.com/legolaskiss/blog/item/0f8cc3ea8ac553d0d539c92c.html
-"后来又参考了其他的资料,进行了较大改动,因为Tab键会用于补全,所以不能用来跳过右半部分
-inoremap ( ()<left>
-inoremap [ []<left>
-inoremap { <c-r>=BigBracket()<CR>
-inoremap ' <c-r>=ReplaceQuote("'")<CR>
-inoremap " <c-r>=ReplaceQuote("\"")<CR>
-"对于vim脚本文件, 双引号还可以作为注释, 所以这里映射到一个专用函数
-"注意其中有个<buffer>, 表示这个映射只针对buffer有效
-autocmd FileType vim inoremap <buffer> " <c-r>=ReplaceQuoteForVim("\"")<CR>
-inoremap ) <c-r>=ClosePair(')')<CR>
-inoremap ] <c-r>=ClosePair(']')<CR>
-inoremap } <c-r>=ClosePair('}')<CR>
-"替换左花括号,如果当前行有内容,不替换,如果当前行只是空字符,则自动加上右括号,并且换行
-"这样做是因为有时候需要用单个大括号,表示折叠,所以不能替换
-function! BigBracket()
-  if getline('.') =~ '^\s*$'
-    return "{}\<left>\<CR>\<ESC>kA"
-  else
-    return "{"
-  endif
-endfunction
-function! ClosePair(char)
-  if getline('.')[col('.') - 1] == a:char
-    return "\<Right>"
-  else
-    return a:char
-  endif
-endfunction
-"这个函数和下面的ReplaceQuote类似, 但是处理了双引号作为注释的情况
-"如果整行没内容,然后输入引号,这种情况就是注释, 那就不进行处理
-function! ReplaceQuoteForVim(c)
-  if getline('.') =~ '^\s*$' && a:c == '"'
-    return a:c
-  endif
-  if getline('.')[col('.') - 1] == a:c
-    return "\<Right>"
-  else
-    return a:c . a:c . "\<Left>"
-  endif
-endfunction
-
-function! ReplaceQuote(c)
-  if getline('.')[col('.') - 1] == a:c
-    return "\<Right>"
-  else
-    return a:c . a:c . "\<Left>"
-  endif
-endfunction
-
-"重新映射删除键,使得光标在两个双引号或者单引号之间的时候,优先删除右边的一个
-function! NewBackSpace()
-  let col = col('.') - 1
-  if col > 0 && "'\"" =~ getline('.')[col]
-    if getline('.')[col] == getline('.')[col-1]
-      return "\<Del>"
-    endif
-  endif
-  return "\<BackSpace>"
-endfunction
-"inoremap <BackSpace> <c-r>=NewBackSpace()<cr>
-inoremap <S-BackSpace> <Right><BackSpace>
-
-"使得光标在不同窗口中跳转，Tab是向下/向右跳转，Shift+Tab则相反
-nnoremap <S-Tab> <C-w>W
-nnoremap <Tab> <C-w>w
-nmap <F6> :nohls<cr>
-"设置/取消高亮光标所在行和所在列
-"map <F5> :set cursorline cursorcolumn
-"map <S-F5> :set nocursorline nocursorcolumn
-
-"直接编译执行当前文件,目前仅支持Python(*.py)
-function! RunSource()
-  let ext = expand("%:e") "分解出扩展名
-  if ext == 'py'   "处理Python文件
-    "调用python,注意如果在Windows，要把python.exe的路径加入PATH环境变量
-    exe "!python ".expand("%:p")
-  elseif ext == 'c' || ext == 'cpp'
-    if filereadable('Makefile')
-      make
-    else
-      echo "c和cpp文件必须提供Makefile才能自动编译"
-    endif
-  else   "如果扩展名不支持
-    echo "目前只支持以下文件格式:"
-    echo "(*.py), Python文件"
-    echo "(*.c), c语言文件（需有Makefile）"
-    echo "(*.cpp), c++文件（需有Makefile）"
-  endif
-endfunction
-map <F9> :w<bar>call RunSource():cw
-
-"map <F9> :w<bar>:make<cr>:cw<cr><cr><cr>
-
-"colorscheme my_desert
-"colorscheme bandit
-au BufRead,BufNewFile,ColorScheme *.tips setfiletype tips
-au BufRead,BufNewFile,ColorScheme *.lnt setfiletype c
-nnoremap <F2> :call setline('.', strftime('%Y-%m-%d %H:%M:%S', localtime()))
-nmap <F4> ^y$:<c-r>=GotoHelp(@0)<cr><cr>
-function! GotoHelp(cmd)
-	let c=a:cmd
-	if match(c,'^:h .\+$') != -1
-		return c
-	else
-		return "echo '当前行不是查询帮助的命令'"
-	endif
-endfunction
-set ignorecase
-autocmd BufEnter * lcd %:p:h
-vmap <c-c> "+y<esc>
-nmap <c-v> <esc><esc>"+p
-
-set nobackup
-set nu
-set scrolloff=5
-
-function! MaximizeWindow()
-  silent !wmctrl -r :ACTIVE: -b add,maximized_vert,maximized_horz
-endfunction
-
-"自动添加时间戳,来源http://www.yegong.net/timestamp-script-for-vim/
-"根据不同的文件类型,自动以注释的方式写入当前时间,
-"如果已经存在一个旧的时间戳,自动更新,如果不存在,在第一行
-"function! TimeStamp(...)
-"    let sbegin = ''
-"    let send = ''
-"    if a:0 >= 1
-"        let sbegin = a:1.' '
-"    endif
-"    if a:0 >= 2
-"        let send = ' '.a:2
-"    endif
-"    let pattern = sbegin . 'Last Change: .\+'
-"        \. send
-"    let pattern = '^\s*' . pattern . '\s*$'
-"    let row = search(pattern, 'n')
-"    let now = strftime('%Y-%m-%d %H:%M:%S',
-"        \localtime())
-"    let now = sbegin . 'Last Change: '
-"        \. now . send
-"    if row == 0
-"        call append(0, now)
-"    else
-"        call setline(row, now)
-"    endif
-"endfunction
-
-"au BufWritePre _vimrc,*.vim,.vimrc   call TimeStamp('"')
-"au BufWritePre *.c,*.h        call TimeStamp('//')
-"au BufWritePre *.cpp,*.hpp    call TimeStamp('//')
-"au BufWritePre *.cxx,*.hxx    call TimeStamp('//')
-"au BufWritePre *.java         call TimeStamp('//')
-"au BufWritePre *.rb           call TimeStamp('#')
-"au BufWritePre *.py           call TimeStamp('#')
-"au BufWritePre Makefile       call TimeStamp('#')
-"au BufWritePre *.txt          call TimeStamp()
-"au BufWritePre *.php
-"    \call TimeStamp('<?php //', '?>')
-"au BufWritePre *.html,*htm
-"    \call TimeStamp('<!--', '-->')
-
-"设置自动折行，如果一行显示不下去，会自动显示成多行，VIM默认是打开这个选项，这句不写也行
-"不过自动折行有个小问题，就是按j和k进行光标移动的时候，一次会跳过整行，导致要把光标移动到一行的中间，要按很多次l才行
-"还好有gj和gk这两个也是移动的命令，可以满足要求，而且对于没有折行的，也是正常。所以这里直接把j和k映射上去
-set wrap
-nnoremap j gj
-nnoremap k gk
-
-"设置每行最大宽度为80，如果超过这个宽度，会自动换行，但是如果一行就是一个超过80个字
-"符的单词，不会被自动换行，只有从后面添加时，才会换行，如果从前面或者中间添加，
-"就不会换行
-"如果要中文也能正确换行，就要加上fo+=Mm这一句
-"目前这个暂时不用，因为如果要复制到Word里面，那这鲎远?换行就帮倒忙了
-"set tw=80 fo+=Mm
-
-if v:version >= 700
-    set completeopt=menu,longest,preview
-                            " 自动补全(ctrl-p)时的一些选项：
-                            " 多于一项时显示菜单，最长选择，
-                            " 显示当前选择的额外信息
-endif
-set confirm                 " 用确认对话框（对于 gvim）或命令行选项（对于
-                            " vim）来代替有未保存内容时的警告信息
-set display=lastline        " 长行不能完全显示时显示当前屏幕能显示的部分。
-                            " 默认值为空，长行不能完全显示时显示 @。
-set showcmd                 " 在状态栏显示目前所执行的指令，未完成的指令片段亦
-                            " 会显示出来
-set cmdheight=1             " 设定命令行的行数为 1
-set laststatus=2            " 显示状态栏 (默认值为 1, 无法显示状态栏)
-set statusline=%F%m%r,%Y,%{&fileformat}\ \ \ ASCII=\%b,HEX=\%B\ \ \ %l,%c%V\ %p%%\ \ \ [\ %L\ lines\ in\ all\ ]
-                            " 设置在状态行显示的信息如下：
-                            " %F    当前文件名
-                            " %m    当前文件修改状态
-                            " %r    当前文件是否只读
-                            " %Y    当前文件类型
-                            " %{&fileformat}
-                            "       当前文件编码
-                            " %b    当前光标处字符的 ASCII 码值
-                            " %B    当前光标处字符的十六进制值
-                            " %l    当前光标行号
-                            " %c    当前光标列号
-                            " %V    当前光标虚拟列号 (根据字符所占字节数计算)
-                            " %p    当前行占总行数的百分比
-                            " %%    百分号
-                            " %L    当前文件总行数
-  "处理QuickFix窗口乱码,见:h make
-	"function! QfMakeConv()
-	   "let qflist = getqflist()
-	   "for i in qflist
-	     "let i.text = iconv(i.text, "utf-8", "euc-cn")
-	   "endfor
-	   "call setqflist(qflist)
-	"endfunction
-
-	"au QuickfixCmdPost make call QfMakeConv()
-
-  "几个和make相关的映射
-  "make后面加上感叹号，使得不自动跳转到第一个错误，
-  map <leader>m :w<bar>make!<cr>:copen<cr>G
-  "在调用make后继续调用make run，要求Makefile里面要有run这一节
-  map <leader>ma :w<bar>make<cr>:make run<cr>
-
-  "通过a.vim插件，实现在.h和.cpp之间切换  
-  map <leader>a :w<bar>A<cr>
-
-  "c.vim的配置
-  "设置日期和时间的格式,如果不设置,将显示为中文,这样不太合适
-  let g:C_FormatDate = '%Y-%m-%d'
-  let g:C_FormatTime = '%H:%M:%S'
-  let g:C_MapLeader=mapleader
-  let g:C_CFlags= '-Wall -g -O0 -c -std=c++0x'
-  let g:C_Libs= '-lm -pthread'
-
-  map <leader>dr :run macros/gdb_mappings.vim<bar>call gdb("gdb")<cr>
-  map <leader>dv :bel vsplit gdb-variables<bar>silent! !echo a<cr>i<ESC>
-
-  let g:vimgdb_debug_file = ""
-  "run macros/gdb_mappings.vim
-
-  nmap <leader>du :silent! !echo a<cr>i<ESC>
-  inoremap <C-v> <esc>:set paste<cr>mui<C-R>+<esc>mv'uV'v=:set nopaste<cr>
+""""""""""""""""""""""""""""""
+" pydiction
+""""""""""""""""""""""""""""""
 "let g:pydiction_location='~/.vim/pydiction/complete-dict'
 "autocmd FileType python set omnifunc=pythoncomplete#Complete
 "autocmd FileType python compiler pylint
+""""""""""""""""""""""""""""""
+" pylint
+""""""""""""""""""""""""""""""
 let g:pylint_onwrite = 0 "不在保存py文件时自动检查,因为那很浪费时间
 let g:pylint_show_rate = 1
 autocmd FileType python set completeopt-=preview
 
-"如果版本号大于7.3，则启用持久化撤销的功能
-if version >=703
-  set undofile
-endif
 
-set go-=m
-
-ino <M-k> <Up>
-ino <M-j> <Down>
-ino <M-h> <Left>
-ino <M-l> <Right>
-cnoremap <M-h> <Left>
-cnoremap <M-l> <Right>
-
-"将命令行的结果，输出到当前的文件中
-"使用方法:
-":ShowCommand 命令
-"如  :ShowCommand reg
-"command是定义一个用户自定义函数
-"-nagrs=1规定这个函数接受一个参数
-"-complete=command规定这个函数可以接受Ex命令补全(其实我也不太理解是什么意思,应该是支持在命令行按Tab键补全一些命令的名字)
-"ReadCommand是函数名，后面全部是函数体，函数体中，注意<args>在实际命令中，会替换为实际的参数
-"函数体的内容比较简单，主要是利用redir命令，把输出先重定向到一个临时寄存器，然后粘贴到文件，最后结束重定向
-command! -nargs=1 -complete=command ReadCommand redir @"> 
-    \ | exe "<args>" | normal $p | redir END
-
-set colorcolumn=81
-
-map <leader>stl :sp ~/share/vim/vimfiles/after/syntax/cpp/stl.vim<cr>
-
-"取消securemodelines这个插件，这个插件可以检查modeline，仅保留一些安全的设置
-"但是我觉得这个插件管的太严格了，又不想删掉，这里定义了这个变量，使得这个插件不会加载
-"如果要加载插件，必须把这行注视掉，改成1是没用的
-let g:loaded_securemodelines = 0
-
-nmap <leader>z zA
-
-"在用ctags生成命令的时候,生成一些特定的C++信息
-"--c++-kinds=+p  : 为C++文件增加函数原型的标签
-"--fields=+iaS   : 在标签文件中加入继承信息(i)、类成员的访问控制信息(a)、以及函数的指纹(S)
-"--extra=+q      : 为标签增加类修饰符。注意，如果没有此选项，将不能对类成员补全 
-map <leader>tag :!ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR>
-"和OmniComplete补全相关的一些映射,pumvisible()函数返回现在补全列表是否可见
-inoremap <expr> <CR>       pumvisible()?"\<C-Y>":"\<CR>"
-inoremap <expr> <C-J>      pumvisible()?"\<PageDown>\<C-N>\<C-P>":"\<C-X><C-O>"
-inoremap <expr> <C-K>      pumvisible()?"\<PageUp>\<C-P>\<C-N>":"\<C-K>"
-inoremap <expr> <C-U>      pumvisible()?"\<C-E>":"\<C-U>" 
-"如果补全列表可见,把j和k映射为上下移动,否则还是保持原样
-"原来是定义成j和k, 但是k的使用频率有点高, 容易误操作
-inoremap <expr> j          pumvisible()?"\<C-N>":"j"
-inoremap <expr> J          pumvisible()?"\<C-P>":"J"
-
+""""""""""""""""""""""""""""""
+" OminCppComplete
+""""""""""""""""""""""""""""""
 "OminCppComplete相关设置
 "不在全局范围内搜索,这样可以减少很多没用的匹配
 let g:OmniCpp_GlobalScopeSearch = 0
@@ -529,7 +550,9 @@ let g:OmniCpp_MayCompleteScope = 1
 "autocmd CursorMovedI * if pumvisible() == 0|pclose|endif 
 autocmd InsertLeave * if pumvisible() == 0|pclose|endif 
 
-"DoxygenToolkit 配置
+""""""""""""""""""""""""""""""
+" DoxygenToolkit
+""""""""""""""""""""""""""""""
 let g:DoxygenToolkit_briefTag_pre = "@brief "
 let g:DoxygenToolkit_paramTag_pre="@param "
 let g:DoxygenToolkit_returnTag="@retval "
@@ -543,17 +566,9 @@ let g:DoxygenToolkit_remainParameterType = "no"
 
 au BufNewFile,BufRead *.doxygen setfiletype doxygen
 
-au FileType gitcommit r /tmp/git_log.tmp
-au FileType gitcommit g/^#.*\n^#\@!/exec "norm o"
-au FileType gitcommit v/^#/s/^/#/
-
-"Ctrl-w is too hard to press
-noremap wl <C-w>l
-noremap wj <C-w>j
-noremap wk <C-w>k
-noremap wh <C-w>h
-
-"for vim-indent-guides
+""""""""""""""""""""""""""""""
+" vim-indent-guides
+""""""""""""""""""""""""""""""
 let g:indent_guides_start_level=2
 let g:indent_guides_guide_size=1
 let g:indent_guides_enable_on_vim_startup=1 "auto start, use <leader>ig to toggle
@@ -561,38 +576,35 @@ let g:indent_guides_auto_colors=0
 hi IndentGuidesEven ctermbg=233
 hi IndentGuidesOdd ctermbg=234
 
-"disable the AlignMaps plugin(~/.vim/plugin/AlignPlugin.vim)
-"because I never use it and it define some unuse <leader>a* map
-let g:loaded_AlignMapsPlugin = "v41"
-
-"set the content of status line
-"show more important information when it is short
-set statusline=
-set statusline +=%n\        "buffer number
-set statusline +=%{&ff}     "file format
-set statusline +=%Y         "file type
-set statusline +=%<\ %F     "full path
-set statusline +=%#StatusLineFlag#%m         "modified flag
-set statusline +=%r%*         "modified flag
-set statusline +=%=%P,%v,%#StatusLineLineNo#%l%* "percent,virtual columen,line
-set statusline +=/%L        "total lines
-set statusline +=\ %B       "character under cursor
-hi StatusLineFlag ctermbg=126 cterm=reverse,bold
-hi StatusLineLineNo ctermbg=4 cterm=reverse,bold
-
+""""""""""""""""""""""""""""""
+" pymode
+""""""""""""""""""""""""""""""
 " python-mode options(see :h PythonModeOptions for more info)
 let pymode_lint_ignore="E111"
 
+""""""""""""""""""""""""""""""
+" YouCompleteMe
+""""""""""""""""""""""""""""""
 " YouCompleteMe (https://github.com/Valloric/YouCompleteMe)
 let g:ycm_extra_conf_globlist = ['~/*/.ycm_extra_conf.py',
                                \ '~/.ycm_extra_conf.py']
 let g:syntastic_always_populate_loc_list = 1
 nnoremap <F5> :YcmForceCompileAndDiagnostics<CR>:lopen<CR>:lw<CR>
 
+""""""""""""""""""""""""""""""
 " Unite
+""""""""""""""""""""""""""""""
 nnoremap <leader>b :Unite buffer<cr>
 
-" Disable BufExplorer(~/.vim/plugin/bufexplorer)
-let g:bufexplorer_version = 1
+""""""""""""""""""""""""""""""
+" EnhancedCommentify-2.3
+""""""""""""""""""""""""""""""
+let g:EnhCommentifyUseAltKeys = 'no'
+let g:EnhCommentifyFirstLineMode = 'yes'
+let g:EnhCommentifyBindInNormal = 'yes'
+let g:EnhCommentifyBindInInsert = 'no'
+let g:EnhCommentifyBindInVisual = 'yes'
 
-" VIM: sw=2 ts=2 fileencoding=utf-8
+" }}}
+
+" vim: sw=2 ts=2 fileencoding=utf-8 fdm=marker
