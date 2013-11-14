@@ -14,6 +14,10 @@ Bundle 'colourscheme_bandit'
 Bundle 'ciaranm/securemodelines'
 Bundle 'unite.vim'
 Bundle 'EnhancedCommentify-2.3'
+Bundle 'ervandew/supertab'
+Bundle 'cscope.vim'
+Bundle 'DoxygenToolkit.vim'
+Bundle 'taglist.vim'
 
 filetype plugin indent on
 " }}}
@@ -22,15 +26,15 @@ filetype plugin indent on
 
 " allow backspacing over everything in insert mode
 set backspace=indent,eol,start
-set history=500		" keep 50 lines of command line history
+set history=500		" keep N lines of command line history
 set ruler		" show the cursor position all the time
 set showcmd		" display incomplete commands
 set incsearch		" do incremental searching
-set noerrorbells
 set ignorecase
-set nu
-set scrolloff=5
-set linespace=0
+set noerrorbells
+set number        "Show line number
+set scrolloff=5   "Keep N lines above or below cursor line (except in the begin or end of file)
+set linespace=2   "Only for GUI
 
 set tabstop=2     "实际Tab键的宽度
 set expandtab     "用空格代替Tab键,这样当按了Tab键后,会被替换成两个空格,删除的时候也是按空格来删除
@@ -270,6 +274,7 @@ function! GotoHelp(cmd)
 		return "echo '当前行不是查询帮助的命令'"
 	endif
 endfunction
+
 function! MaximizeWindow()
   silent !wmctrl -r :ACTIVE: -b add,maximized_vert,maximized_horz
 endfunction
@@ -362,6 +367,7 @@ nmap <F4> ^y$:<c-r>=GotoHelp(@0)<cr><cr>
 "设置/取消高亮光标所在行和所在列
 "map <F5> :set cursorline cursorcolumn
 "map <S-F5> :set nocursorline nocursorcolumn
+" NOTE: <F5> is mapped in the setting of YouCompleteMe
 nmap <F6> :nohls<cr>
 map <F9> :w<bar>call RunSource():cw
 
@@ -386,7 +392,7 @@ inoremap <expr> <CR>       pumvisible()?"\<C-Y>":"\<CR>"
 inoremap <expr> <C-J>      pumvisible()?"\<PageDown>\<C-N>\<C-P>":"\<C-X><C-O>"
 inoremap <expr> <C-K>      pumvisible()?"\<PageUp>\<C-P>\<C-N>":"\<C-K>"
 inoremap <expr> <C-U>      pumvisible()?"\<C-E>":"\<C-U>" 
-"如果补全列表可见,把j和k映射为上下移动,否则还是保持原样
+"如果补全列表可见,把j和J映射为上下移动,否则还是保持原样
 "原来是定义成j和k, 但是k的使用频率有点高, 容易误操作
 inoremap <expr> j          pumvisible()?"\<C-N>":"j"
 inoremap <expr> J          pumvisible()?"\<C-P>":"J"
@@ -399,9 +405,7 @@ noremap wh <C-w>h
 " }}}
 """  Settings of plugins {{{
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-""""""""""""""""""""""""""""""
-" Tag list (ctags)
-""""""""""""""""""""""""""""""
+""" Tag list (ctags) {{{
 "if MySys() == "windows"                "设定windows系统中ctags程序的位置
 "  let Tlist_Ctags_Cmd = 'ctags'
 "elseif MySys() == "linux"              "设定linux系统中ctags程序的位置
@@ -410,10 +414,8 @@ noremap wh <C-w>h
 let Tlist_Show_One_File = 1            "不同时显示多个文件的tag，只显示当前文件的
 let Tlist_Exit_OnlyWindow = 1          "如果taglist窗口是最后一个窗口，则退出vim
 "let Tlist_Use_Right_Window = 1         "在右侧窗口中显示taglist窗口 
-
-""""""""""""""""""""""""""""""
-" WinManager
-""""""""""""""""""""""""""""""
+" }}}
+""" WinManager {{{
 "let g:winManagerWindowLayout='FileExplorer|TagList'
 "nmap wm :WMToggle<cr>
 ""在读取c/c++文件时，启动WinManager
@@ -456,15 +458,11 @@ let Tlist_Exit_OnlyWindow = 1          "如果taglist窗口是最后一个窗口
 "endfunction
 "autocmd BufEnter __Tag_List__,\[File\ List\] nested 
 "      \ call Exit_When_No_Other_Buffer()
-
-""""""""""""""""""""""""""""""
-" cscope
-""""""""""""""""""""""""""""""
+" }}}
+""" cscope  {{{
 set cscopequickfix=s-,c-,d-,i-,t-,e-
-
-""""""""""""""""""""""""""""""
-" miniBufExplorer
-""""""""""""""""""""""""""""""
+"  }}}
+""" miniBufExplorer  {{{
 "允许用<C-箭头键>切换buffer
 "let g:miniBufExplMapWindowNavArrows = 1
 "允许用<C-Tab>和<C-S-Tab>向前或向后选中Buf并直接打开
@@ -477,59 +475,43 @@ let g:miniBufExplMapWindowNavVim = 1
 "buf超过多少个,才显示miniBuf,设为999就是为了不让他显示
 let g:miniBufExplorerMoreThanOne = 999
 "let g:miniBufExplForceSyntaxEnable = 1
-
-""""""""""""""""""""""""""""""
-" NeoComplCache
-""""""""""""""""""""""""""""""
+"  }}}
+""" NeoComplCache  {{{
 let g:NeoComplCache_EnableAtStartup = 1 
-
-""""""""""""""""""""""""""""""
-" SuperTab
-""""""""""""""""""""""""""""""
+"  }}}
+""" SuperTab  {{{
 let g:SuperTabDefaultCompletionType="context"
-
-""""""""""""""""""""""""""""""
-" a.vim
-""""""""""""""""""""""""""""""
+" }}}
+""" a.vim  {{{
 "通过a.vim插件，实现在.h和.cpp之间切换  
 map <leader>a :w<bar>A<cr>
-
-""""""""""""""""""""""""""""""
-" c.vim
-""""""""""""""""""""""""""""""
+"  }}}
+""" c.vim  {{{
 "设置日期和时间的格式,如果不设置,将显示为中文,这样不太合适
 let g:C_FormatDate = '%Y-%m-%d'
 let g:C_FormatTime = '%H:%M:%S'
 let g:C_MapLeader=mapleader
 let g:C_CFlags= '-Wall -g -O0 -c -std=c++0x'
 let g:C_Libs= '-lm -pthread'
-
-""""""""""""""""""""""""""""""
-" vimgdb
-""""""""""""""""""""""""""""""
+"  }}}
+""" vimgdb {{{
 map <leader>dr :run macros/gdb_mappings.vim<bar>call gdb("gdb")<cr>
 map <leader>dv :bel vsplit gdb-variables<bar>silent! !echo a<cr>i<ESC>
 
 let g:vimgdb_debug_file = ""
 "run macros/gdb_mappings.vim
-
-""""""""""""""""""""""""""""""
-" pydiction
-""""""""""""""""""""""""""""""
+"  }}}
+""" pydiction  {{{
 "let g:pydiction_location='~/.vim/pydiction/complete-dict'
 "autocmd FileType python set omnifunc=pythoncomplete#Complete
 "autocmd FileType python compiler pylint
-""""""""""""""""""""""""""""""
-" pylint
-""""""""""""""""""""""""""""""
+"  }}}
+""" pylint  {{{
 let g:pylint_onwrite = 0 "不在保存py文件时自动检查,因为那很浪费时间
 let g:pylint_show_rate = 1
 autocmd FileType python set completeopt-=preview
-
-
-""""""""""""""""""""""""""""""
-" OminCppComplete
-""""""""""""""""""""""""""""""
+" }}}
+""" OminCppComplete  {{{
 "OminCppComplete相关设置
 "不在全局范围内搜索,这样可以减少很多没用的匹配
 let g:OmniCpp_GlobalScopeSearch = 0
@@ -549,10 +531,8 @@ let g:OmniCpp_MayCompleteScope = 1
 "第二句是在离开插入模式的时候,我觉得这个时机还算不错
 "autocmd CursorMovedI * if pumvisible() == 0|pclose|endif 
 autocmd InsertLeave * if pumvisible() == 0|pclose|endif 
-
-""""""""""""""""""""""""""""""
-" DoxygenToolkit
-""""""""""""""""""""""""""""""
+"  }}}
+""" DoxygenToolkit  {{{
 let g:DoxygenToolkit_briefTag_pre = "@brief "
 let g:DoxygenToolkit_paramTag_pre="@param "
 let g:DoxygenToolkit_returnTag="@retval "
@@ -565,45 +545,36 @@ let g:DoxygenToolkit_startCommentBlock = "/* "
 let g:DoxygenToolkit_remainParameterType = "no"
 
 au BufNewFile,BufRead *.doxygen setfiletype doxygen
-
-""""""""""""""""""""""""""""""
-" vim-indent-guides
-""""""""""""""""""""""""""""""
+"  }}}
+""" vim-indent-guides  {{{
 let g:indent_guides_start_level=2
 let g:indent_guides_guide_size=1
 let g:indent_guides_enable_on_vim_startup=1 "auto start, use <leader>ig to toggle
 let g:indent_guides_auto_colors=0
 hi IndentGuidesEven ctermbg=233
 hi IndentGuidesOdd ctermbg=234
-
-""""""""""""""""""""""""""""""
-" pymode
-""""""""""""""""""""""""""""""
+" }}}
+""" pymode  {{{
 " python-mode options(see :h PythonModeOptions for more info)
 let pymode_lint_ignore="E111"
-
-""""""""""""""""""""""""""""""
-" YouCompleteMe
-""""""""""""""""""""""""""""""
+" }}}
+""" YouCompleteMe  {{{
 " YouCompleteMe (https://github.com/Valloric/YouCompleteMe)
 let g:ycm_extra_conf_globlist = ['~/*/.ycm_extra_conf.py',
                                \ '~/.ycm_extra_conf.py']
 let g:syntastic_always_populate_loc_list = 1
 nnoremap <F5> :YcmForceCompileAndDiagnostics<CR>:lopen<CR>:lw<CR>
-
-""""""""""""""""""""""""""""""
-" Unite
-""""""""""""""""""""""""""""""
+" }}}
+""" Unite  {{{
 nnoremap <leader>b :Unite buffer<cr>
-
-""""""""""""""""""""""""""""""
-" EnhancedCommentify-2.3
-""""""""""""""""""""""""""""""
+" }}}
+""" EnhancedCommentify-2.3  {{{
 let g:EnhCommentifyUseAltKeys = 'no'
 let g:EnhCommentifyFirstLineMode = 'yes'
 let g:EnhCommentifyBindInNormal = 'yes'
 let g:EnhCommentifyBindInInsert = 'no'
 let g:EnhCommentifyBindInVisual = 'yes'
+" }}}
 
 " }}}
 
