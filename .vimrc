@@ -10,7 +10,7 @@ set rtp+=~/.vim/bundle/vundle
 call vundle#rc()
 
 Bundle 'gmarik/vundle'
-Bundle 'newkedison/colourscheme_bandit'
+Bundle 'colourscheme_bandit'
 Bundle 'ciaranm/securemodelines'
 Bundle 'unite.vim'
 Bundle 'EnhancedCommentify-2.3'
