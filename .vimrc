@@ -24,6 +24,10 @@ Bundle 'Shougo/vimproc'
 Bundle 'stl-highlight'
 Bundle 'Rainbow-Parentheses-Improved-and2'
 Bundle 'a.vim'
+Bundle 'TagHighlight'
+Bundle 'qmake--syntax'
+Bundle 'cpp.vim'
+Bundle 'cppgetset.vim'
 
 filetype plugin indent on
 " }}}
@@ -565,11 +569,13 @@ hi IndentGuidesOdd ctermbg=234
 let pymode_lint_ignore="E111"
 " }}}
 """ YouCompleteMe  {{{
-" YouCompleteMe (https://github.com/Valloric/YouCompleteMe)
-let g:ycm_extra_conf_globlist = ['~/*/.ycm_extra_conf.py',
-                               \ '~/.ycm_extra_conf.py']
+" For debug only
+"let g:ycm_server_use_vim_stdout = 1
+
+let g:ycm_global_ycm_extra_conf = '~/.vim/ycm_global_extra_conf.py'
+"let g:ycm_extra_conf_globlist = ['~/.ycm_extra_conf.py']
 let g:syntastic_always_populate_loc_list = 1
-nnoremap <F5> :YcmForceCompileAndDiagnostics<CR>:lopen<CR>:lw<CR>
+nnoremap <F5> :YcmForceCompileAndDiagnostics<CR>:lw<CR>
 " }}}
 """ Unite  {{{
 "Must set it to 1 if want to use :Unite history/yank
@@ -602,6 +608,9 @@ let g:EnhCommentifyBindInVisual = 'yes'
 """ Rainbow-Parentheses-Improved-and2 {{{
 let g:rainbow_active=1
 let g:rainbow_operators=1
+"  }}}
+""" cppgetset.vim  {{{
+let g:getset_StyleOfGetSetMethod				= 1
 "  }}}
 
 " }}}

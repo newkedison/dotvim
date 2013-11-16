@@ -1,4 +1,5 @@
 .netrwhist
 .*
 *.un~
+*.pyc
 bundle/
