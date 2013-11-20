@@ -25,9 +25,11 @@ Bundle 'stl-highlight'
 Bundle 'Rainbow-Parentheses-Improved-and2'
 Bundle 'a.vim'
 Bundle 'TagHighlight'
-Bundle 'qmake--syntax'
+Bundle 'qmake--syntax.vim'
 Bundle 'cpp.vim'
 Bundle 'cppgetset.vim'
+Bundle 'nathanaelkane/vim-indent-guides'
+Bundle 'gitcommit_highlight'
 
 filetype plugin indent on
 " }}}
@@ -335,6 +337,11 @@ nnoremap ; :
 
 map <leader>stl :sp ~/share/vim/vimfiles/after/syntax/cpp/stl.vim<cr>
 
+" K is a vim build-in command for lookup keywork under cursor,
+" but it is not very useful for me, so map it to a lowercase k
+" see ':h K' for the detail of K command
+map K k
+
 "ino <M-k> <Up>
 "ino <M-j> <Down>
 "ino <M-h> <Left>
@@ -505,8 +512,8 @@ let g:C_CFlags= '-Wall -g -O0 -c -std=c++0x'
 let g:C_Libs= '-lm -pthread'
 "  }}}
 """ vimgdb {{{
-map <leader>dr :run macros/gdb_mappings.vim<bar>call gdb("gdb")<cr>
-map <leader>dv :bel vsplit gdb-variables<bar>silent! !echo a<cr>i<ESC>
+"map <leader>dr :run macros/gdb_mappings.vim<bar>call gdb("gdb")<cr>
+"map <leader>dv :bel vsplit gdb-variables<bar>silent! !echo a<cr>i<ESC>
 
 let g:vimgdb_debug_file = ""
 "run macros/gdb_mappings.vim
@@ -569,12 +576,23 @@ hi IndentGuidesOdd ctermbg=234
 let pymode_lint_ignore="E111"
 " }}}
 """ YouCompleteMe  {{{
-" For debug only
+" For debug only, the better way is read log file in /tmp/ycm_temp/
 "let g:ycm_server_use_vim_stdout = 1
 
+let g:ycm_filetype_blacklist = {
+      \ 'tagbar' : 1,
+      \ 'qf' : 1,
+      \ 'notes' : 1,
+      \ 'markdown' : 1,
+      \ 'unite' : 1,
+      \ 'text' : 1,
+      \ 'vimwiki' : 1,
+      \ 'gitcommit' : 1,
+      \}
 let g:ycm_global_ycm_extra_conf = '~/.vim/ycm_global_extra_conf.py'
 "let g:ycm_extra_conf_globlist = ['~/.ycm_extra_conf.py']
 let g:syntastic_always_populate_loc_list = 1
+let g:ycm_max_diagnostics_to_display = 100
 nnoremap <F5> :YcmForceCompileAndDiagnostics<CR>:lw<CR>
 " }}}
 """ Unite  {{{
@@ -587,6 +605,7 @@ call unite#filters#matcher_default#use(['matcher_fuzzy'])
 "nnoremap <leader>o :<C-u>Unite -no-split -buffer-name=outline -start-insert outline<cr>
 nnoremap <leader>y :<C-u>Unite -buffer-name=yank    history/yank<cr>
 nnoremap <leader>b :<C-u>Unite -buffer-name=buffer  buffer<cr>
+nnoremap <leader>g :<C-u>Unite -buffer-name=files   grep:.:-iIr<cr>
 
 " Custom mappings for the unite buffer
 autocmd FileType unite call s:unite_settings()
