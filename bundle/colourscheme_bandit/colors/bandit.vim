@@ -12,33 +12,10 @@ set background=dark
 
 let ColourAssignment = {}
 
-"let ColourAssignment['_Black'] = {"GUIFG":'Black', "GUIBG":'Black', "CTERMFG":'Black', "CTERMBG":'Black'}
-"let ColourAssignment['_DarkBlue'] = {"GUIFG":'DarkBlue', "GUIBG":'DarkBlue', "CTERMFG":'DarkBlue', "CTERMBG":'DarkBlue'}
-"let ColourAssignment['_DarkGreen'] = {"GUIFG":'DarkGreen', "GUIBG":'DarkGreen', "CTERMFG":'DarkGreen', "CTERMBG":'DarkGreen'}
-"let ColourAssignment['_DarkCyan'] = {"GUIFG":'DarkCyan', "GUIBG":'DarkCyan', "CTERMFG":'DarkCyan', "CTERMBG":'DarkCyan'}
-"let ColourAssignment['_DarkRed'] = {"GUIFG":'DarkRed', "GUIBG":'DarkRed', "CTERMFG":'DarkRed', "CTERMBG":'DarkRed'}
-"let ColourAssignment['_DarkMagenta'] = {"GUIFG":'DarkMagenta', "GUIBG":'DarkMagenta', "CTERMFG":'DarkMagenta', "CTERMBG":'DarkMagenta'}
-"let ColourAssignment['_Brown'] = {"GUIFG":'Brown', "GUIBG":'Brown', "CTERMFG":'Brown', "CTERMBG":'Brown'}
-"let ColourAssignment['_DarkYellow'] = {"GUIFG":'DarkYellow', "GUIBG":'DarkYellow', "CTERMFG":'DarkYellow', "CTERMBG":'DarkYellow'}
-"let ColourAssignment['_LightGray'] = {"GUIFG":'LightGray', "GUIBG":'LightGray', "CTERMFG":'LightGray', "CTERMBG":'LightGray'}
-"let ColourAssignment['_LightGrey'] = {"GUIFG":'LightGrey', "GUIBG":'LightGrey', "CTERMFG":'LightGrey', "CTERMBG":'LightGrey'}
-"let ColourAssignment['_Gray'] = {"GUIFG":'Gray', "GUIBG":'Gray', "CTERMFG":'Gray', "CTERMBG":'Gray'}
-"let ColourAssignment['_Grey'] = {"GUIFG":'Grey', "GUIBG":'Grey', "CTERMFG":'Grey', "CTERMBG":'Grey'}
-"let ColourAssignment['_DarkGray'] = {"GUIFG":'DarkGray', "GUIBG":'DarkGray', "CTERMFG":'DarkGray', "CTERMBG":'DarkGray'}
-"let ColourAssignment['_DarkGrey'] = {"GUIFG":'DarkGrey', "GUIBG":'DarkGrey', "CTERMFG":'DarkGrey', "CTERMBG":'DarkGrey'}
-"let ColourAssignment['_Blue'] = {"GUIFG":'Blue', "GUIBG":'Blue', "CTERMFG":'Blue', "CTERMBG":'Blue'}
-"let ColourAssignment['_LightBlue'] = {"GUIFG":'LightBlue', "GUIBG":'LightBlue', "CTERMFG":'LightBlue', "CTERMBG":'LightBlue'}
-"let ColourAssignment['_Green'] = {"GUIFG":'Green', "GUIBG":'Green', "CTERMFG":'Green', "CTERMBG":'Green'}
-"let ColourAssignment['_LightGreen'] = {"GUIFG":'LightGreen', "GUIBG":'LightGreen', "CTERMFG":'LightGreen', "CTERMBG":'LightGreen'}
-"let ColourAssignment['_Cyan'] = {"GUIFG":'Cyan', "GUIBG":'Cyan', "CTERMFG":'Cyan', "CTERMBG":'Cyan'}
-"let ColourAssignment['_LightCyan'] = {"GUIFG":'LightCyan', "GUIBG":'LightCyan', "CTERMFG":'LightCyan', "CTERMBG":'LightCyan'}
-"let ColourAssignment['_Red'] = {"GUIFG":'Red', "GUIBG":'Red', "CTERMFG":'Red', "CTERMBG":'Red'}
-"let ColourAssignment['_LightRed'] = {"GUIFG":'LightRed', "GUIBG":'LightRed', "CTERMFG":'LightRed', "CTERMBG":'LightRed'}
-"let ColourAssignment['_Magenta'] = {"GUIFG":'Magenta', "GUIBG":'Magenta', "CTERMFG":'Magenta', "CTERMBG":'Magenta'}
-"let ColourAssignment['_LightMagenta'] = {"GUIFG":'LightMagenta', "GUIBG":'LightMagenta', "CTERMFG":'LightMagenta', "CTERMBG":'LightMagenta'}
-"let ColourAssignment['_Yellow'] = {"GUIFG":'Yellow', "GUIBG":'Yellow', "CTERMFG":'Yellow', "CTERMBG":'Yellow'}
-"let ColourAssignment['_LightYellow'] = {"GUIFG":'LightYellow', "GUIBG":'LightYellow', "CTERMFG":'LightYellow', "CTERMBG":'LightYellow'}
-"let ColourAssignment['_White'] = {"GUIFG":'White', "GUIBG":'White', "CTERMFG":'White', "CTERMBG":'White'}
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" View available xterm color by :XtermColorTable
+" If this command is not found, install github.com/guns/xterm-color-table.vim
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 " Unspecified colours default to NONE, EXCEPT cterm(.*) which default to matching gui(.*)
 " ctermfg will default to 'Blue' and ctermbg to 'NONE' if gui(.*) are RGB
@@ -109,6 +86,12 @@ let ColourAssignment['Type']            = {"GUIFG": '#ff8000', "CTERMFG": 'Yello
 let ColourAssignment['StorageClass']    = {"GUIFG": '#ff4040', "CTERMFG": 'Cyan'} " static, register, volatile, etc.
 let ColourAssignment['Structure']       = {"GUIFG": '#ff8080', "CTERMFG": 'Cyan'} " struct, union, enum, etc.
 
+" Custom color groups defined by vim-easytags
+let ColourAssignment['cTypeTag']        = {"GUIFG": '#ff8000', "CTERMFG": 68}
+let ColourAssignment['cFunctionTag']    = {"GUIFG": '#007777', "CTERMFG": 39}
+let ColourAssignment['cConstantTag']    = {"GUIFG": '#007777', "CTERMFG": 171}
+let ColourAssignment['cEnumTag']        = {"GUIFG": '#007777', "CTERMFG": 209}
+
 " Special Stuff
 let ColourAssignment['Special']         = {"GUIFG": 'Red',         "GUI":    'Bold'}
 let ColourAssignment['SpecialChar']     = {"GUIFG": '#AA0000', "CTERMFG": "LightRed"}     " special character in a constant
@@ -159,7 +142,6 @@ let ColourAssignment['DiffText']        = {"GUIFG": 'White', "GUIBG": 'DarkRed'}
 
 " Visual
 let ColourAssignment['Visual']       = {"GUIFG": 'Black', "CTERMFG": 'White', "GUI": 'Reverse'}
-
 
 
 " Text Titles

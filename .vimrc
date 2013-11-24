@@ -30,6 +30,9 @@ Bundle 'cpp.vim'
 Bundle 'cppgetset.vim'
 Bundle 'nathanaelkane/vim-indent-guides'
 Bundle 'gitcommit_highlight'
+Bundle 'xolox/vim-misc'
+Bundle 'xolox/vim-easytags'
+Bundle 'guns/xterm-color-table.vim'
 
 filetype plugin indent on
 " }}}
@@ -379,6 +382,8 @@ inoremap <S-BackSpace> <Right><BackSpace>
 nnoremap <S-Tab> <C-w>W
 nnoremap <Tab> <C-w>w
 
+map <F1> <ESC>
+imap <F1> <ESC>
 nnoremap <F2> :call setline('.', strftime('%Y-%m-%d %H:%M:%S', localtime()))
 nmap <F4> ^y$:<c-r>=GotoHelp(@0)<cr><cr>
 "设置/取消高亮光标所在行和所在列
@@ -630,6 +635,11 @@ let g:rainbow_operators=1
 "  }}}
 """ cppgetset.vim  {{{
 let g:getset_StyleOfGetSetMethod				= 1
+"  }}}
+""" easytags {{{
+let g:easytags_file = '~/.vim/.easytags'
+let g:easytags_events = ['BufReadPost']
+let g:easytags_on_cursorhold = 0 " disable auto update and highlight
 "  }}}
 
 " }}}
