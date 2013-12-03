@@ -36,3 +36,7 @@ Here is list of installed plugins, thanks to their authors, they make vim rock.
 - [guns/xterm-color-table.vim](https://github.com/guns/xterm-color-table.vim)
 - gitcommit_highlight (Written by myself)
 
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/newkedison/dotvim/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
