@@ -154,7 +154,7 @@ augroup BeforeDisplayFileGroup
     \ if line("'\"") > 0 && line("'\"") <= line("$") |
     \   exe "normal! g`\"" |
     \ endif
-  autocmd BufEnter * lcd %:p:h
+"  autocmd BufEnter * lcd %:p:h
 augroup END
 
 augroup DetectFileTypeGroup
@@ -506,7 +506,7 @@ let g:SuperTabDefaultCompletionType="context"
 " }}}
 """ a.vim  {{{
 "通过a.vim插件，实现在.h和.cpp之间切换  
-map <leader>a :w<bar>A<cr>
+map <leader>a :update<bar>A<cr>
 "  }}}
 """ c.vim  {{{
 "设置日期和时间的格式,如果不设置,将显示为中文,这样不太合适
@@ -603,9 +603,10 @@ nnoremap <F5> :YcmForceCompileAndDiagnostics<CR>:lw<CR>
 """ Unite  {{{
 "Must set it to 1 if want to use :Unite history/yank
 let g:unite_source_history_yank_enable = 1
+let g:unite_source_grep_max_candidates = 1000
 call unite#filters#matcher_default#use(['matcher_fuzzy'])
 "nnoremap <leader>t :<C-u>Unite -no-split -buffer-name=files   -start-insert file_rec/async:!<cr>
-"nnoremap <leader>f :<C-u>Unite -no-split -buffer-name=files   -start-insert file<cr>
+nnoremap <leader>f :<C-u>Unite -buffer-name=files   file<cr>
 "nnoremap <leader>r :<C-u>Unite -no-split -buffer-name=mru     -start-insert file_mru<cr>
 "nnoremap <leader>o :<C-u>Unite -no-split -buffer-name=outline -start-insert outline<cr>
 nnoremap <leader>y :<C-u>Unite -buffer-name=yank    history/yank<cr>
@@ -638,7 +639,7 @@ let g:getset_StyleOfGetSetMethod				= 1
 "  }}}
 """ easytags {{{
 let g:easytags_file = '~/.vim/.easytags'
-let g:easytags_events = ['BufReadPost']
+let g:easytags_events = ['BufWinEnter']
 let g:easytags_on_cursorhold = 0 " disable auto update and highlight
 "  }}}
 
