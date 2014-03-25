@@ -38,5 +38,3 @@ Here is list of installed plugins, thanks to their authors, they make vim rock.
 
 
 
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/newkedison/dotvim/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-

@@ -338,6 +338,8 @@ au! bufwritepost .vimrc source ~/.vimrc
 
 nnoremap ; :
 
+nnoremap . m'.`'
+
 map <leader>stl :sp ~/share/vim/vimfiles/after/syntax/cpp/stl.vim<cr>
 
 " K is a vim build-in command for lookup keywork under cursor,
@@ -641,6 +643,8 @@ let g:getset_StyleOfGetSetMethod				= 1
 let g:easytags_file = '~/.vim/.easytags'
 let g:easytags_events = ['BufWinEnter']
 let g:easytags_on_cursorhold = 0 " disable auto update and highlight
+let g:easytags_dynamic_files = 2 " auto create and use project specific tags
+let g:easytags_python_enabled = 1 " use python interfase to improve speed
 "  }}}
 
 " }}}

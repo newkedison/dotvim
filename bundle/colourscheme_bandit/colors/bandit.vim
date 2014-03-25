@@ -24,7 +24,7 @@ let ColourAssignment = {}
 " terminals is essential
 
 " By default, assume the background colour is dark (changes for light backgrounds are handled later)
-let ColourAssignment['Normal']          = {"GUIFG": 'White'}
+let ColourAssignment['Normal']          = {"GUIFG": 'White',       "CTERMFG":  '255'}
 
 " Comments are green
 let ColourAssignment['Comment']         = {"GUIFG": '#00ff00',     "CTERMFG": 'DarkGreen'}
